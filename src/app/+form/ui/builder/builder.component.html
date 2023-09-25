@@ -1,0 +1,95 @@
+<div class="flex items-center w-full h-full justify-center">
+    <div class="border border-solid border-gray-400 rounded-sm p-3 max-w-md w-full max-h-[600px] h-full">
+        <div class="flex flex-col h-full w-full">
+            <div>
+                <div *ngFor="let item of fSvc.questionList">
+                    <h1 class="font-bold">{{item.question}} <span *ngIf="item.isRequired">*</span></h1>
+                    <div *ngIf="item.type === 'text'">
+
+                        <mat-form-field class="w-full mat-form-field-custom" appearance="outline">
+                            <textarea matInput name="answer" [(ngModel)]="item.answer" maxlength="500"
+                                #answer="ngModel"></textarea>
+                            <span *ngIf="!item.answer && item.isRequired && (answer.dirty || answer.touched)"
+                                class="inline-block text-red-500 absolute left-0 top-full">
+                                <span>This field is required.</span>
+                            </span>
+                        </mat-form-field>
+                    </div>
+
+                    <div *ngIf="item.type === 'check-box'">
+                        <ul>
+                            <li *ngFor="let f of item.formQuestions; index as i">
+                                <mat-checkbox class="w-full mb-1" name="isSelect{{i}}" [(ngModel)]="f.isSelect">
+                                    {{f.name}}
+                                </mat-checkbox>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <a class="underline cursor-pointer" (click)="addNewQuestion()">
+                        Add New Question
+                    </a>
+                </div>
+            </div>
+            <div class="mt-3 text-right">
+                <button class="py-3 px-6 bg-black hover:bg-black focus:bg-black text-white rounded-md" type="button"
+                    [routerLink]="['/form', 'answers']">
+                    Review my answers >
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Popup -->
+<ng-template #dialogTemplate let-item>
+    <section class="confirm-dialog">
+        <article mat-dialog-title class="mat-dialog-title">
+            <span class="text">Add a new questions</span>
+        </article>
+        <article mat-dialog-content>
+            <h6 class="font-semibold mb-3">Types</h6>
+            <ul>
+                <li *ngFor="let type of fSvc.questionType" (click)="selectType(type)" class="px-5 py-2 border border-solid border-gray-400 cursor-pointer mb-2 rounded-sm text-center
+                    {{type.isSelected ? 'bg-black text-white' : ''}}">
+                    {{type.name}}
+                </li>
+            </ul>
+
+            <form [formGroup]="fSvc.addQuestionForm">
+                <h6 class="font-semibold mb-3">Questions</h6>
+                <ng-container formArrayName="formQuestions">
+                    <ng-container *ngFor="let control of fSvc.formArray.controls; index as i">
+                        <ng-container [formGroupName]="i">
+                            <mat-form-field class="w-full mb-3" appearance="outline">
+                                <input matInput [placeholder]="'Enter question'" autocomplete="off"
+                                    [formControl]="control.controls.name" />
+                                <mat-error>
+                                    This field is required.
+                                </mat-error>
+                            </mat-form-field>
+                        </ng-container>
+                    </ng-container>
+                </ng-container>
+
+                <a class="underline inline-block {{fSvc.maxQuestions() ? 'pointer-events-none':'pointer-events-auto cursor-pointer text-blue-400'}}"
+                    (click)="fSvc.addFormGroup()">
+                    + Add another answer
+                </a>
+
+                <mat-checkbox class="w-full mb-1" [formControl]="fSvc.addQuestionForm.controls.isAllowUser">
+                    Allow user to specify their own answer
+                </mat-checkbox>
+                <mat-checkbox class="w-full mb-1" [formControl]="fSvc.addQuestionForm.controls.isRequired">
+                    This field is required
+                </mat-checkbox>
+            </form>
+        </article>
+        <article mat-dialog-actions>
+            <button mat-button (click)="submit()"
+                class="mat-button py-3 px-6 bg-black hover:bg-black focus:bg-black text-white rounded-md ml-auto">Submit</button>
+        </article>
+    </section>
+</ng-template>
