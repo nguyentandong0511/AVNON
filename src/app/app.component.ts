@@ -6,14 +6,14 @@ import { tap } from 'rxjs';
 @Component({
   selector: 'app-root',
   template: `
-  <!-- <nz-form-item>
+  <!-- <form>
+  <nz-form-item>
     <nz-form-control>
-      <nz-select [formControl]="form" nzDropdownClassName="hide-dropdown" nzMode="tags" nzPlaceHolder="Add Keywords"
-        #dropdown (nzBlur)="onBlur()" (nzOnSearch)="onSearch($event)" (keydown.enter)="handleKeyDown($event)"
-        [nzTokenSeparators]="[',', ';']">
-      </nz-select>
+      <input nz-input placeholder="Basic usage" [formControl]="form" (keydown)="validateNumericInput($event)"
+        [maxlength]="12" />
     </nz-form-control>
-  </nz-form-item> -->
+  </nz-form-item>
+</form> -->
   <router-outlet></router-outlet>
   `,
   standalone: true,
@@ -23,48 +23,23 @@ export class AppComponent {
   title = 'AVNON';
 
   form: FormControl = new FormControl()
-  currentSearch: string = '';
-
+  allowedKeys = [8, 46, 37, 39, 187];
   ngOnInit() {
     this.form.valueChanges.pipe(
       tap((val) => {
-        console.log(val);
-
+        if (val.lastIndexOf('+') === -1 && this.allowedKeys.indexOf(187) === -1) {
+          this.allowedKeys.push(187)
+        }
       })
     ).subscribe()
   }
 
-  onBlur() {
-    const currList = [];
-    if (this.form.value) currList.push(...this.form.value)
-    const list = this.currentSearch.split(/[;,]/);
-    const newList = list.filter(val => !!val).map(i => {
-      return i.trim()
-    })
-    currList.push(...newList)
-    console.log(newList);
-    this.form.setValue([...new Set(currList)])
-  }
-
-  change(e: any) {
-    console.log(e);
-
-  }
-
-  handleKeyDown(event: any) {
-    console.log(event);
-    if (event.key === 'Enter') {
-      // Prevent the default behavior (adding a tag on Enter)
+  validateNumericInput(event: any) {
+    if (this.allowedKeys.indexOf(event.keyCode) === -1 && (event.key < '0' || event.key > '9')) {
       event.preventDefault();
-
-
-      // Your custom logic if needed
     }
-  }
-
-
-  onSearch(e: any) {
-    console.log(e);
-    this.currentSearch = e;
+    if (event.key === '+' && this.allowedKeys.indexOf(187) !== -1) {
+      this.allowedKeys.splice(this.allowedKeys.indexOf(187), 1)
+    }
   }
 }
