@@ -20,26 +20,22 @@ import { tap } from 'rxjs';
   imports: [RouterOutlet]
 })
 export class AppComponent {
-  title = 'AVNON';
+  var content = document.getElementById("content");
+var notification = document.getElementById("notification");
+content.innerHTML = "test";
 
-  form: FormControl = new FormControl()
-  allowedKeys = [8, 46, 37, 39, 187];
-  ngOnInit() {
-    this.form.valueChanges.pipe(
-      tap((val) => {
-        if (val.lastIndexOf('+') === -1 && this.allowedKeys.indexOf(187) === -1) {
-          this.allowedKeys.push(187)
-        }
-      })
-    ).subscribe()
-  }
+let myTimeout = setTimeout(myGreeting, 5000);
 
-  validateNumericInput(event: any) {
-    if (this.allowedKeys.indexOf(event.keyCode) === -1 && (event.key < '0' || event.key > '9')) {
-      event.preventDefault();
-    }
-    if (event.key === '+' && this.allowedKeys.indexOf(187) !== -1) {
-      this.allowedKeys.splice(this.allowedKeys.indexOf(187), 1)
-    }
-  }
+function myGreeting() {
+  content.innerHTML = "";
+  notification.style.display = "none";
+  clearTimeout(myTimeout);
+}
+function clickBtn() {
+  clearTimeout(myTimeout);
+  notification.style.display = "block";
+  content.innerHTML = "ban code co nhieu loi qua vay";
+  myTimeout = setTimeout(myGreeting, 5000);
+}
+
 }
